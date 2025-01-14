@@ -21,7 +21,7 @@ Do NOT declare a "local variable" outside of the while true loop.
 # User Values #
 Cash = 0
 Money = Cash
-Current = "Unassigned"
+Current = "Currently idle"
 ListCurrent = "Currently idle", "Browsing the store", "Purchasing items", "At the bank"
 
 ## HUD ##
@@ -34,15 +34,13 @@ space = 0
 # HUD Elements #
 Blanks = " "
 NewPage = "\n\n\n"
-NewPage = NewPage*15
+NewPage = NewPage*15 # 45 lines long
 Divider = "-"
 Divider = (f"""
 {Divider*125}
 """)
 
 # Items #
-
-Type = ["Drink", "Snack"]
 
 # Maximum Characters for naming Items is [15]
 
@@ -72,7 +70,7 @@ PricesP2 = list(Menus2.values())
 
 ItemsList = []
 
-MenuNo, Active, Action = 0, 1, 0
+Action = 0
 
 ## Functions ##
 
@@ -97,7 +95,7 @@ def HUD(type, inputs): # For displaying formats
         if Action == 2:
             print(f"{Divider}99[Back]\nItems Dispensed:{ItemsList}")
         else:
-            print(f"{Divider}8[Buy] 9[Withdraw] 99[Back]\nItems Dispensed:{ItemsList}")
+            print(f"{Divider}8[Buy] 9[Withdraw]\nItems Dispensed:{ItemsList}")
     else:
         print("Function 'HUD' did not return 'type' from int 1-3, You may have entered out a value or a str.")
 
@@ -164,10 +162,11 @@ def Purchause(Input): # Old Function used for reference...
 ###                              ### ----- END OF VARIABLES ----- ###                                     ###
 #-----------------------------------------------------------------------------------------------------------#
 
+# Quick Access Variables
 DebugMode = 0
-Input = 20
-PageNum = 0
-Cash = 2000
+Input = 495
+PageNum = 1
+Cash = 2000 
 
 # Boot/Menu - Run once only
 def DasBoot():
@@ -189,12 +188,12 @@ while True:
         PrintedHUD = 99
 
         if not Action == 2:
-            PageNumL = PageNum
-        PrintedHUD = 99
+            if Input == 1 or 2:
+                PageNumL = PageNum
         
         if PrintedHUD == 1 or 99:
             Input = int(input("Input:"))
-        
+
         elif PrintedHUD == 0:
             Action = LastAction
             HUD(3,1)
@@ -230,14 +229,15 @@ while True:
                 print("Script Broke")
 
             print(NewPage,Divider,end='')
-            print(f'''Browsing the store...{Divider}What would you like to do today?\n1[Shop] 2[Withdraw/Deposit] 99[Leave]''')
+            print(f'''{Current}...{Divider}What would you like to do today?\n1[Shop] 2[Withdraw/Deposit] 99[Leave]''')
 
         if Action == 1:# Browser
 
             if Input == 8:
-                Action = 2
-                PageNum = 1
-                HUD(3,1)
+                if PageNum == 1 or 2:
+                    Action = 2
+                    PageNum = PageNumL
+                HUD(3,PageNumL)
             if Input == 9:
                 Action = 3
                 PageNum = 1
@@ -249,20 +249,22 @@ while True:
         if Action == 2:# Buying
             if Input < len(PricesP1):
 
-                if PageNumL == 1:
+                if PageNumL == 1: # Drinks
                     print(f"Purchased: {ItemsP1[Input]} Price:{PricesP1[Input]}")
                     ItemsList.append(ItemsP1[Input])
                     Cash = (Cash - PricesP1[Input])
                     print(f"Balance:{Cash}")
                     Action = 1
-                elif PageNumL == 2:
+                elif PageNumL == 2: # Snacks
                     print(f"Purchased: {ItemsP2[Input]} Price:{PricesP2[Input]}")
                     ItemsList.append(ItemsP2[Input])
                     Cash = (Cash - PricesP2[Input])
                     print(f"Balance:{Cash}")
                     Action = 1
                 else:
-                    print(f"This can't, purchause failed. (PageNum:{PageNumL}/Input:{Input}/Price:{PricesP1[Input]}/Len:{len(PricesP1)})")
+                    print(f"This page can't, purchause failed. (PageNum:{PageNumL}/Input:{Input}/Price:{PricesP1[Input]}/Len:{len(PricesP1)})")
+                    Action = 1
+                    PageNum, PageNumL = 1,1 # Reset
 
             elif Input == 99:
                 Action = 1
@@ -270,13 +272,14 @@ while True:
             else:
                 print("Halted, over the list's 'page' length...")
 
-            PageNumL = 1
-            HUD(3,1)
+            PageNum = PageNumL
+            HUD(3,PageNumL)
 
         if Action == 3:# Deposit/Withdraw
             print(f"{NewPage}Please enter amount to withdraw... (Recomended:200)\nCurrent Cash:{Cash}")
             Amount = Cash + int(input("Amount:"))
             Cash = Amount
+            PageNum = PageNumL
             Action = LastAction
             HUD(3,LastAction)
 
