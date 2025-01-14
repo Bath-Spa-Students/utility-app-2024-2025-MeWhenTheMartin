@@ -1,5 +1,11 @@
-### Vending Machine
-print("Please wait...")
+#-----------------------------------------------------------------------------------------------------------#
+###                              ### ----- VENDING  MACHINE ----- ###                                     ###
+#-----------------------------------------------------------------------------------------------------------#
+
+## Vending Machine for Code Lab (Y1 Group 2) Assesment 2
+# Coded by Martin
+
+print(f"Please wait...\nWe are preparing shortly...")
 
 #-----------------------------------------------------------------------------------------------------------#
 ###                              ### ----- GLOBAL VARIABLES ----- ###                                     ###
@@ -7,7 +13,9 @@ print("Please wait...")
 
 '''
 NOTES:
-Variables with Capitals should be reserved for Global Variables
+Variables with Capitals should be reserved for Global Variables.
+--
+Do NOT declare a "local variable" outside of the while true loop.
 '''
 
 # User Values #
@@ -33,6 +41,7 @@ Divider = (f"""
 """)
 
 # Items #
+
 Type = ["Drink", "Snack"]
 
 # Maximum Characters for naming Items is [15]
@@ -61,9 +70,9 @@ Menus2 = { # Snacks
 ItemsP2 = list(Menus2.keys())
 PricesP2 = list(Menus2.values())
 
+ItemsList = []
+
 MenuNo, Active, Action = 0, 1, 0
-LastAction = 0
-PrintedHUD = 1
 
 ## Functions ##
 
@@ -84,13 +93,13 @@ def HUD(type, inputs): # For displaying formats
     if type == 2: # Bank
         print(type)
     if type == 3: # Store
-        print(f"{Divider}Money:{Cash}\n{Current}...{Divider}Vending Machine{Divider}", end=''), printStoreMenu(inputs)
+        print(f"{NewPage}{Divider}Money:{Cash}\n{Current}...{Divider}Vending Machine{Divider}", end=''), printStoreMenu(inputs)
         if Action == 2:
-            print(f"{Divider}99[Back]\nItems Dispensed:")
+            print(f"{Divider}99[Back]\nItems Dispensed:{ItemsList}")
         else:
-            print(f"{Divider}8[Buy] 9[Deposit] 99[Back]\nItems Dispensed:")
+            print(f"{Divider}8[Buy] 9[Withdraw] 99[Back]\nItems Dispensed:{ItemsList}")
     else:
-        print("Function 'HUD' did not return from int 1-3, You may have entered out of value or a str.")
+        print("Function 'HUD' did not return 'type' from int 1-3, You may have entered out a value or a str.")
 
 default_stock = 10
 
@@ -125,35 +134,80 @@ def printStoreMenu(Num):
     else:
         print(f"\n1[Back] Page {Num}/2 2[Next]{Divider}")
 
-def Interact():
-    print("Interact")
+
+def Purchause(Input): # Old Function used for reference...
+    if Input < len(PricesP1):
+
+        Pge = 101
+        if PageNumL == 1:
+            if Input == PricesP1[Input]:
+                print(f"Price:{PricesP1[Input]}")
+            else:
+                print(f"Could not get price. Item did not match list. Price:{PricesP1[Input]}")
+                Cash + PricesP1[Input]
+        elif PageNumL == 2:
+            if Input == PricesP2[Input]:
+                print(f"Price:{PricesP1[Input]}")
+            else:
+                print(f"Could not get price. Item did not match list. Price:{PricesP1[Input]}")
+        else:
+            print(f"This can't, purchause failed. (PageNum:{PageNumL}/Input:{Input}/Price:{Pge}/Len:{len(PricesP1)})")
+
+    else:
+        print("Halted, over the list's 'page' length...")
+    
+    #print(f"(PageNum:{PageNum}/Input:{Input}/Price:{Pge}/Len:{len(PricesP1)})")
+
 
 
 #-----------------------------------------------------------------------------------------------------------#
 ###                              ### ----- END OF VARIABLES ----- ###                                     ###
 #-----------------------------------------------------------------------------------------------------------#
 
+DebugMode = 0
+Input = 20
+PageNum = 0
+Cash = 2000
 
-# Boot/Menu
+# Boot/Menu - Run once only
 def DasBoot():
     print(NewPage,Divider,end='')
     Current = ListCurrent[Action]
     print(f'''{Current}...{Divider}What would you like to do today?
 1[Shop] 2[Withdraw/Deposit] 99[Leave]''')
-
 DasBoot()
 
-## CYCLE
+#-----------------------------------------------------------------------------------------------------------#
+
+# Loop > State > Input > Output
+
 while True: 
     try: 
-        if PrintedHUD == 1:
+
+        if not Action == 3:
+            LastAction = Action
+        PrintedHUD = 99
+
+        if not Action == 2:
+            PageNumL = PageNum
+        PrintedHUD = 99
+        
+        if PrintedHUD == 1 or 99:
             Input = int(input("Input:"))
+        
+        elif PrintedHUD == 0:
+            Action = LastAction
+            HUD(3,1)
+
         PrintedHUD = 1
 
-        print(f"{Divider}\nDEBUG:")
-        print(f"Var [Action]:{Action}")
-        print(f"Var [Input]:{Input}")
-        print(Divider)
+        if DebugMode == 1:
+            print(f"{Divider}\nDEBUG:")
+            print(f"Var [Action]:{Action}")
+            print(f"Var [LastAction]:{LastAction}")
+            print(f"Var [Input]:{Input}")
+            print(f"PrintedHUD{PrintedHUD}")
+            print(Divider)
 
         #-----------NOTES-----------#
         # 0 = Initiate Console      #
@@ -182,26 +236,53 @@ while True:
 
             if Input == 8:
                 Action = 2
+                PageNum = 1
                 HUD(3,1)
-            elif Input == 9:
+            if Input == 9:
                 Action = 3
+                PageNum = 1
                 HUD(3,1)
-            elif Input == 1 or 2:
+            if Input == 1 or 2:
+                PageNum = Input
                 HUD(3,Input)
-            elif not Input == 1 or 2 or 8 or 9:
-                print("Input unknown")
 
-        if Action == 2:# Buying 
-            print(f"Var [Action]:{Action} 'You're in the buy menu.'")
+        if Action == 2:# Buying
+            if Input < len(PricesP1):
+
+                if PageNumL == 1:
+                    print(f"Purchased: {ItemsP1[Input]} Price:{PricesP1[Input]}")
+                    ItemsList.append(ItemsP1[Input])
+                    Cash = (Cash - PricesP1[Input])
+                    print(f"Balance:{Cash}")
+                    Action = 1
+                elif PageNumL == 2:
+                    print(f"Purchased: {ItemsP2[Input]} Price:{PricesP2[Input]}")
+                    ItemsList.append(ItemsP2[Input])
+                    Cash = (Cash - PricesP2[Input])
+                    print(f"Balance:{Cash}")
+                    Action = 1
+                else:
+                    print(f"This can't, purchause failed. (PageNum:{PageNumL}/Input:{Input}/Price:{PricesP1[Input]}/Len:{len(PricesP1)})")
+
+            elif Input == 99:
+                Action = 1
+
+            else:
+                print("Halted, over the list's 'page' length...")
+
+            PageNumL = 1
             HUD(3,1)
 
         if Action == 3:# Deposit/Withdraw
             print(f"{NewPage}Please enter amount to withdraw... (Recomended:200)\nCurrent Cash:{Cash}")
             Amount = Cash + int(input("Amount:"))
-            Cash, Action = Amount, LastAction
-            PrintedHUD = 0
-        
-        LastAction = Action
+            Cash = Amount
+            Action = LastAction
+            HUD(3,LastAction)
+
+        if Input == 99:
+            Action = LastAction
+            HUD(3,1)
     
     except ValueError:
         print("Invalid input! Please enter a valid integer.")
