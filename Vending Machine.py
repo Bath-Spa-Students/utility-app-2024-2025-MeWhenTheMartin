@@ -250,17 +250,26 @@ while True:
             if Input < len(PricesP1):
 
                 if PageNumL == 1: # Drinks
-                    print(f"Purchased: {ItemsP1[Input]} Price:{PricesP1[Input]}")
-                    ItemsList.append(ItemsP1[Input])
-                    Cash = (Cash - PricesP1[Input])
+                    if Cash > PricesP1[Input] - 1:
+                        print(f"Purchased: {ItemsP1[Input]} Price:{PricesP1[Input]}")
+                        ItemsList.append(ItemsP1[Input])
+                        Cash = (Cash - PricesP1[Input])
+                    else:
+                        print("Can't Purchause. Insufficient funds...")
+
                     print(f"Balance:{Cash}")
                     Action = 1
                 elif PageNumL == 2: # Snacks
-                    print(f"Purchased: {ItemsP2[Input]} Price:{PricesP2[Input]}")
-                    ItemsList.append(ItemsP2[Input])
-                    Cash = (Cash - PricesP2[Input])
+                    if Cash > PricesP2[Input] - 1:
+                        print(f"Purchased: {ItemsP2[Input]} Price:{PricesP2[Input]}")
+                        ItemsList.append(ItemsP2[Input])
+                        Cash = (Cash - PricesP2[Input])
+                    else:
+                        print("Can't Purchause. Insufficient funds...")
+
                     print(f"Balance:{Cash}")
                     Action = 1
+                    
                 else:
                     print(f"This page can't, purchause failed. (PageNum:{PageNumL}/Input:{Input}/Price:{PricesP1[Input]}/Len:{len(PricesP1)})")
                     Action = 1
